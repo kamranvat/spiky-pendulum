@@ -1,4 +1,4 @@
-# neuroplasticity_project
+# synaptic_plasticity_project
 _Project for the course "Modelling Synaptic Plasticity", Summer Semester of 2024, University of Osnabrück_
 
 ## Overview
