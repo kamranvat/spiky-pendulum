@@ -1,7 +1,7 @@
 import gymnasium as gym
 import numpy as np
 
-from gymnasium.wrappers import TransformObservation
+from gymnasium.wrappers import TransformObservation, RescaleAction, NormalizeObservation
 
 # TODOs:
 
@@ -42,8 +42,9 @@ def normalize_observation_absolute(observation, min_obs, max_obs):
     return abs_observation
 
 
-def generate_spike(odds):
+def generate_spike(odds: float) -> bool:
     # TODO: check if the rate is good - maybe reduce odds in here
+    # didn't we do that with a poisson process instead?
     """generate a spike with the given odds (0-1)"""
     return np.random.rand() < odds
 
@@ -57,6 +58,10 @@ def pretty_print_spikes(spikes):
 env = gym.make("Pendulum-v1", render_mode="human", g=1)  # default: g=10
 min_obs = env.observation_space.low
 max_obs = env.observation_space.high
+
+# that might be helpful
+# env = RescaleAction(env, 0, 1);
+
 env = TransformObservation(
     env, lambda obs: normalize_observation_absolute(obs, min_obs, max_obs)
 )
