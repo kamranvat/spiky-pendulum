@@ -48,6 +48,11 @@ def generate_spike(odds):
     return np.random.rand() < odds
 
 
+def pretty_print_spikes(spikes):
+    """print the spikes in a human readable way"""
+    print("".join([" X " if spike else "   " for spike in spikes]))
+
+
 # Generate environment:
 env = gym.make("Pendulum-v1", render_mode="human", g=1)  # default: g=10
 min_obs = env.observation_space.low
@@ -64,7 +69,7 @@ for _ in range(1000):
 
     # generate spikes for the input neurons
     spikes = [generate_spike(neuron) for neuron in observation]
-    print(observation)
+    pretty_print_spikes(spikes)
 
     if terminated or truncated:
         observation, info = env.reset()
