@@ -36,7 +36,7 @@ def obs_transf(box, min_fire: int = 100, max_fire: int = 100) -> np.array:
     else:
         angle = (angle - np.pi) / np.pi
 
-    angle = np.square(angle)
+    angle = np.power(angle, 3)
 
     # angle = np.exp(angle) * max_fire
 
@@ -44,9 +44,20 @@ def obs_transf(box, min_fire: int = 100, max_fire: int = 100) -> np.array:
 
 
     # still have to think about to what to do with the angular velocity
+    # we assume for 100 timesteps to take place in each action that can be taken - so that we can have an array with up to 100 spikes
     
     return np.array([angle,box[2]])
     
+def rate_to_poisson_input(rates):
+    '''
+    Generate input in the form of Poisson spike process based on given rates
+    '''
+    neuron_ids , time_steps = np.shape(rates)
+    input_spike_probs = rates / 1000.0
+
+    poisson_trains = np.array([np.random.poisson(lam=firing_probability, size=time_steps) for firing_probability in input_spike_probs])
+    poisson_trains[poisson_trains >= 1] = 1
+    return poisson_trains.astype(np.int16)
 
 
 def pretty_print_spikes(input_spikes, output_spikes):
@@ -64,18 +75,16 @@ if __name__ == "__main__":
 
     # Generate environment:
     env = gym.make("Pendulum-v1", render_mode="human", g=1)  # default: g=10
-    min_obs = env.observation_space.low
-    max_obs = env.observation_space.high
+    min_fire = env.observation_space.low
+    max_fire = env.observation_space.high
 
     # that might be helpful
-
     env = TransformObservation(
         env, 
         lambda obs: obs_transf(obs)
     )
 
     observation, info = env.reset()
-    max_angl = []
 
     # try stuff out - for six input neurons:
     for _ in range(1000):
@@ -83,15 +92,13 @@ if __name__ == "__main__":
         # generate random spikes of two output neurons
         # output_spikes = [generate_spike(0.5), generate_spike(0.5)]
         # action = spikes_to_action(output_spikes, env.action_space.low, env.action_space.high)
-        observation, reward, terminated, truncated, info = env.step(action)
-        max_angl.append(observation[0])
+        observation, reward, term, trunc, _ = env.step(action)
 
         # generate spikes for the input neurons (for current timestep)
         # input_spikes = [generate_spike(neuron) for neuron in observation]
         # pretty_print_spikes(input_spikes, output_spikes)
 
-        if terminated or truncated:
-            observation, info = env.reset()
+        if term or trunc:
+            observation, _ = env.reset()
 
-    print(max(max_angl))
     env.close()
