@@ -15,52 +15,62 @@ from gymnasium.wrappers import TransformObservation, RescaleAction, NormalizeObs
 #   Box(-2.0, 2.0, (1,), float32)
 
 
-def obs_transf(box, min_fire: int = 100, max_fire: int = 100) -> np.array:
-    # since the box is given as 
-    #   | obs           | Min | Max
-    # 0 | x = cos(theta)| -1  |  1
-    # 1 | y = sin(theta)| -1  |  1
-    # 2 | angl. veloc.  | -8  |  8
-    # we can also represent theta as arccos(x) # returns radians, rad2deg 
-    # and if we use the angle (log scaled) to generate spike rates, that might be helpful
-    # 180deg should be low firing rate, 0 deg should be max. 
-    # we could try clipping it at 180deg and use the second column with -arccos(x) for angles >
+def prob_to_poisson_input(probabilities: np.ndarray, spike_time_steps: int = 1) -> np.ndarray:
+    '''
+    ### Generate input in the form of Poisson spike process based on given probabilities.
+    probabilities: 1D ndarray, with values between 0 and 1
+    spike_time_steps: int >= 0
+    returns: ndarray of int8 and max value of 1.
+    '''
+    rng = np.random.default_rng()
 
-    if min_fire < 0 or max_fire < 0:
-        raise ValueError(f'min_fire and max_fire should be a positive integer.\nGot {min_fire=} and {max_fire=}')
+    poisson_trains = rng.poisson(probabilities[:,np.newaxis], (probabilities.shape[0], spike_time_steps))
+    poisson_trains = poisson_trains.clip(max = 1)
+
+    return poisson_trains.astype(np.int8)
+
+
+def obs_transf(box: np.ndarray, spike_time_steps: int = 1) -> np.ndarray:
+    '''
+    Since the box is given as:
+    |      Obs      | Min | Max |
+    |      ---      | --- | --- |
+    | x = cos(theta)| -1  |  1  |
+    | y = sin(theta)| -1  |  1  |
+    | angl. veloc.  | -8  |  8  |
     
+    From that we can calculate theta with arccos(x) and use this to generate spike rates. 
+    180 Degrees (straight down) should be lowest firing rate, 0 Degrees (straight up) should be max.
+    To have a stronger bias towards upright, the probability to spike gets squared.
+
+    The velocity gets normalized.
+    '''
+
+    if spike_time_steps < 0:
+        raise ValueError(f'spike_time_steps must be a positive integer.\nGot {spike_time_steps=}')
+
+    # is this smart??
     angle = np.arccos(box[0])
     
     if angle <= np.pi:
         angle = (np.pi - angle) / np.pi
     else:
         angle = (angle - np.pi) / np.pi
+    
+    # to encode a strong bias to upright position make the lower values smaller by squaring.
+    angle = np.power(angle, 2)
 
-    angle = np.power(angle, 3)
+    # normalize 
+    velocity = (box[2] + 8) / 16  # box[2] -- 8 / 8 -- 8
 
-    # angle = np.exp(angle) * max_fire
-
-    ##  or we just square it - idea is to get a function that looks like an exponential function, but in range (0,1)
-
-
-    # still have to think about to what to do with the angular velocity
     # we assume for 100 timesteps to take place in each action that can be taken - so that we can have an array with up to 100 spikes
+    probs = np.array([angle,velocity])
+    return prob_to_poisson_input(probs, spike_time_steps)
     
-    return np.array([angle,box[2]])
-    
-def rate_to_poisson_input(rates):
-    '''
-    Generate input in the form of Poisson spike process based on given rates
-    '''
-    neuron_ids , time_steps = np.shape(rates)
-    input_spike_probs = rates / 1000.0
-
-    poisson_trains = np.array([np.random.poisson(lam=firing_probability, size=time_steps) for firing_probability in input_spike_probs])
-    poisson_trains[poisson_trains >= 1] = 1
-    return poisson_trains.astype(np.int16)
 
 
-def pretty_print_spikes(input_spikes, output_spikes):
+
+def pretty_print_spikes(input_spikes, output_spikes) -> None:
     """print the spikes in a human readable way"""
     print(
         ("  |     ")
@@ -75,13 +85,12 @@ if __name__ == "__main__":
 
     # Generate environment:
     env = gym.make("Pendulum-v1", render_mode="human", g=1)  # default: g=10
-    min_fire = env.observation_space.low
-    max_fire = env.observation_space.high
+    time_steps_per_action = 1
 
     # that might be helpful
     env = TransformObservation(
         env, 
-        lambda obs: obs_transf(obs)
+        lambda obs: obs_transf(obs, time_steps_per_action)
     )
 
     observation, info = env.reset()
@@ -93,6 +102,7 @@ if __name__ == "__main__":
         # output_spikes = [generate_spike(0.5), generate_spike(0.5)]
         # action = spikes_to_action(output_spikes, env.action_space.low, env.action_space.high)
         observation, reward, term, trunc, _ = env.step(action)
+        print(f'Step: {observation}')
 
         # generate spikes for the input neurons (for current timestep)
         # input_spikes = [generate_spike(neuron) for neuron in observation]
