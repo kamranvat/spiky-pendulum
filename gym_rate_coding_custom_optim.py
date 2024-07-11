@@ -9,7 +9,7 @@ import snntorch
 from rstdp import RSTDP
 
 
-# TODOs:
+# TODO:
 
 # try to convert the observation space to spikes
 #   observation space is ndarray of shape (3,) representing the x/y of the free end, and its angular v
@@ -28,12 +28,12 @@ class Model(torch.nn.Module):
 
         self.spike_time = time_steps_per_action
 
-        self.con1 = torch.nn.Linear(2,100, bias = False) # bias = False is recommended? for RSTDP optimiser
+        self.con1 = torch.nn.Linear(2, 100, bias = False) # bias = False is recommended? for RSTDP optimiser
         self.lif1 = snntorch.Leaky(0.9, 0.5, surrogate_disable = True)
-        self.con2 = torch.nn.Linear(100,50, bias = False)
+        self.con2 = torch.nn.Linear(100, 2, bias = False)
         self.lif2 = snntorch.Leaky(0.9, 0.5, surrogate_disable = True)
-        self.con3 = torch.nn.Linear(50, 2, bias = False)
-        self.lif3 = snntorch.Leaky(0.9,0.5, surrogate_disable = True)
+        # self.con3 = torch.nn.Linear(50, 2, bias = False)
+        # self.lif3 = snntorch.Leaky(0.9, 0.5, surrogate_disable = True)
         
 
     def forward(self, x: torch.Tensor, use_traces: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
@@ -47,17 +47,17 @@ class Model(torch.nn.Module):
             cur = self.con1(x[step])
             spk1, mem = self.lif1(cur)
             cur2 = self.con2(spk1)
-            spk2, mem = self.lif2(cur2)
-            cur3 = self.con3(spk2)
-            spk3, mem3 = self.lif3(cur3)
+            spk2, mem2 = self.lif2(cur2)
+            # cur3 = self.con3(spk2)
+            # spk3, mem3 = self.lif3(cur3)
 
-            mem_rec.append(mem3)
-            spk_rec.append(spk3)
+            mem_rec.append(mem2)
+            spk_rec.append(spk2)
 
             if use_traces:
                 self.optim.update_e_trace(
-                    pre_firing = [[x[step],spk1, spk2]],
-                    post_firing = [[spk1, spk2, spk3]]
+                    pre_firing = [[x[step],spk1]],
+                    post_firing = [[spk1, spk2]]
                     )
 
         return torch.stack(spk_rec), torch.stack(mem_rec)
@@ -76,11 +76,18 @@ class Model(torch.nn.Module):
         neur1 = neur1 / self.spike_time
         neur2 = neur2 / self.spike_time
 
-        neur1 = neur1 * 2 - 1
-        neur2 = neur2 * 2 - 1
+        if neur1 > neur2:
+            act = neur1 * 2
+            print('neuron 1 has been chosen')
+        else:
+            act = -neur2 * 2
+        ###################
+        # is it even useful to have two output neurons? - since the rstdp algorithm doesn't distinguish between which neuron did what
+        # just if it's any good
+        ##################
 
         # neuron 1 is the positive action neuron, neuron 2 the negative.
-        return (neur1 - neur2).numpy()[np.newaxis]
+        return act.numpy()[np.newaxis]
     
     def set_optim(self, lr:float = 0.01, **kwargs):
         self.optim = RSTDP(self.parameters(), time_steps = self.spike_time, lr = lr, **kwargs)
@@ -106,19 +113,27 @@ if __name__ == "__main__":
     )
 
     # maybe normalizing the reward around 0 is more useful
-    # env = TransformReward(
-    #     env,
-    #     lambda r: r + np.pi**2 + 0.1 * 8 ** 2 + 0.001 * 2 ** 2
-    # )
-    env = NormalizeReward(env)
+    reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
+    env = TransformReward(
+        env,
+        lambda r: r + reward_adjust
+    )
+    # env = NormalizeReward(env) # max reward was -0.01, even though thingy was upriht
+    # reward should be centered around 0, maybe max 1, min -1, but most importantly for a totally upright position max
 
     observation, info = env.reset()
 
     net = Model(time_steps_per_action)
     net.set_optim() # there are a lot of kwargs here, though I set defaults
 
-    print(net.optim.param_groups[0]['params'][0])
-    for _ in range(500):
+
+    before = net.state_dict()
+    print(before)
+
+    rewardl = []
+
+
+    for i in range(500):
         # action = env.action_space.sample()  # random policy
 
         spks, mem = net(observation, use_traces = True)
@@ -127,13 +142,18 @@ if __name__ == "__main__":
         # printing stuff
         if action != 0:
             print(f'act{action}')
-        else: print(f'obs{observation.max().item()}')
+        else: print(f'obs{observation.max().item()}') # see if there are any spikes in the observation
 
         observation, reward, term, trunc, _ = env.step(action)
-        net.optim.step(reward) # optimiser optimises wheights to 0 if reward is negative - obviously :)
+        net.optim.step(reward)
         
         if term or trunc:
             observation, _ = env.reset()
+        
+        rewardl.append(reward)
+
+
+    rewardl = np.array(rewardl)
 
     breakpoint()
     env.close()
