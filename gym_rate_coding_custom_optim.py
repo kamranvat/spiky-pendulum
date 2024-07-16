@@ -20,6 +20,10 @@ from rstdp import RSTDP
 # Action space is ndarray with shape (1,) repre
 #   Box(-2.0, 2.0, (1,), float32)
 
+# Constants
+RENDER = False
+PRINT_ACT_OBS = False
+PRINT_BEFORE = False
 
 class Model(torch.nn.Module):
     def __init__(self, time_steps_per_action: int = 50):
@@ -114,13 +118,16 @@ def make_spikes(box: np.ndarray, spike_time_steps: int = 50) -> torch.Tensor:
     return spk
 
 
+def train():
+    pass
+
+
+def test():
+    pass
+
+
 if __name__ == "__main__":
 
-    # Render/debug print parameters
-    render = False
-    print_act_obs = False # print action and observation
-    print_before = False # print state_dict before training
-    
     # Parameters
     time_steps_per_action = 50
     gravity = 1  # default: g=10
@@ -129,8 +136,13 @@ if __name__ == "__main__":
     total_steps = episode_length * episode_amount
 
     # Generate environment:
-    if render:
-        env = gym.make("Pendulum-v1", render_mode="human", g=gravity, max_episode_steps=episode_length)
+    if RENDER:
+        env = gym.make(
+            "Pendulum-v1",
+            render_mode="human",
+            g=gravity,
+            max_episode_steps=episode_length,
+        )
     else:
         env = gym.make("Pendulum-v1", g=gravity, max_episode_steps=episode_length)
 
@@ -148,7 +160,7 @@ if __name__ == "__main__":
     net.set_optim()  # there are a lot of kwargs here, though I set defaults
 
     before = net.state_dict()
-    if print_before:
+    if PRINT_BEFORE:
         print(before)
 
     rewardl = []
@@ -160,7 +172,7 @@ if __name__ == "__main__":
         action = net.make_action(spks)
 
         # printing stuff
-        if print_act_obs:
+        if PRINT_ACT_OBS:
             if action != 0:
                 print(f"act{action}")
             else:
