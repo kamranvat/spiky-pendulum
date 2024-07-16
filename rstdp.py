@@ -26,7 +26,7 @@ Arguments:
             a_plus = kwargs.get('a_plus', 0.008),
             a_minus = kwargs.get('a_minus', 0.0096),
             A_plus = kwargs.get('A_plus', 3.),
-            A_minus = kwargs.get('A_minus', 0.),
+            A_minus = kwargs.get('A_minus', 1.),
         )
 
         tau_a = kwargs.get('tau_a', 20)

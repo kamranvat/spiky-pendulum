@@ -130,9 +130,9 @@ if __name__ == "__main__":
 
     # Generate environment:
     if render:
-        env = gym.make("Pendulum-v1", render_mode="human", g=gravity, max_steps=episode_length)
+        env = gym.make("Pendulum-v1", render_mode="human", g=gravity, max_episode_steps=episode_length)
     else:
-        env = gym.make("Pendulum-v1", g=gravity, max_steps=episode_length)
+        env = gym.make("Pendulum-v1", g=gravity, max_episode_steps=episode_length)
 
     env = TransformObservation(env, lambda obs: make_spikes(obs, time_steps_per_action))
 
