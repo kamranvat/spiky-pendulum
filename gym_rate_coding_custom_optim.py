@@ -25,6 +25,7 @@ RENDER = False
 PRINT_ACT_OBS = False
 PRINT_BEFORE = False
 
+
 class Model(torch.nn.Module):
     def __init__(self, time_steps_per_action: int = 50):
         super().__init__()
@@ -118,61 +119,49 @@ def make_spikes(box: np.ndarray, spike_time_steps: int = 50) -> torch.Tensor:
     return spk
 
 
-def train():
-    pass
-
-
-def test():
-    pass
-
-
-if __name__ == "__main__":
-
-    # Parameters
-    time_steps_per_action = 50
-    gravity = 1  # default: g=10
-    episode_length = 500
-    episode_amount = 1
-    total_steps = episode_length * episode_amount
+def train(config: dict):
+    total_steps = config["episode_length"] * config["episode_amount"]
 
     # Generate environment:
-    if RENDER:
+    if config["render"]:
         env = gym.make(
             "Pendulum-v1",
             render_mode="human",
-            g=gravity,
-            max_episode_steps=episode_length,
+            g=config["gravity"],
+            max_episode_steps=config["episode_length"],
         )
     else:
-        env = gym.make("Pendulum-v1", g=gravity, max_episode_steps=episode_length)
+        env = gym.make(
+            "Pendulum-v1",
+            g=config["gravity"],
+            max_episode_steps=config["episode_length"],
+        )
 
-    env = TransformObservation(env, lambda obs: make_spikes(obs, time_steps_per_action))
+    env = TransformObservation(
+        env, lambda obs: make_spikes(obs, config["time_steps_per_action"])
+    )
 
     # maybe normalizing the reward around 0 is more useful
     reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
     env = TransformReward(env, lambda r: r + reward_adjust)
-    # env = NormalizeReward(env) # max reward was -0.01, even though thingy was upriht
-    # reward should be centered around 0, maybe max 1, min -1, but most importantly for a totally upright position max
 
     observation, info = env.reset()
 
-    net = Model(time_steps_per_action)
+    net = Model(config["time_steps_per_action"])
     net.set_optim()  # there are a lot of kwargs here, though I set defaults
 
     before = net.state_dict()
-    if PRINT_BEFORE:
+    if config["print_before"]:
         print(before)
 
     rewardl = []
 
     for i in range(total_steps):
-        # action = env.action_space.sample()  # random policy
-
         spks, mem = net(observation, use_traces=True)
         action = net.make_action(spks)
 
         # printing stuff
-        if PRINT_ACT_OBS:
+        if config["print_act_obs"]:
             if action != 0:
                 print(f"act{action}")
             else:
@@ -190,5 +179,26 @@ if __name__ == "__main__":
 
     rewardl = np.array(rewardl)
 
+    print(f"Mean reward: {rewardl.mean()}")
+
     breakpoint()
     env.close()
+
+
+def test():
+    pass
+
+
+if __name__ == "__main__":
+
+    config = {
+        "time_steps_per_action": 50,
+        "gravity": 1,  # default: g=10
+        "episode_length": 500,
+        "episode_amount": 1,
+        "render": False,
+        "print_act_obs": False,
+        "print_before": False,
+    }
+
+    train(config)
