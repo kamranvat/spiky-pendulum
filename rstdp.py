@@ -42,17 +42,17 @@ Arguments:
         if time_steps <= 0 or type(time_steps) not in [int, np.int_, torch.int]:
             raise ValueError(f'Time steps should be a postive integer value. Got {time_steps}.')
         if defaults['lr'] <= 0:
-            raise ValueError(f'Learning rate should be a positive float value. Got {defaults['lr']}.')
+            raise ValueError(f'Learning rate should be a positive float value. Got {defaults["lr"]}.')
         if defaults['dt'] <= 0 or type(defaults['dt']) not in [int, np.int_, torch.int]:
-            raise ValueError(f'dt should be a positive integer value. Got {defaults['dt']}.')
+            raise ValueError(f'dt should be a positive integer value. Got {defaults["dt"]}.')
         if defaults['a_plus'] <= 0:
-            raise ValueError(f'a_plus should be a positive value. Got {defaults['a_plus']}.') 
+            raise ValueError(f'a_plus should be a positive value. Got {defaults["a_plus"]}.') 
         if defaults['a_minus'] <= 0:
-            raise ValueError(f'a_minus should be a positive value. Got {defaults['a_minus']}.') 
+            raise ValueError(f'a_minus should be a positive value. Got {defaults["a_minus"]}.') 
         if defaults['A_plus'] <= 0:
-            raise ValueError(f'A_plus should be a positive value. Got {defaults['A_plus']}.')
+            raise ValueError(f'A_plus should be a positive value. Got {defaults["A_plus"]}.')
         if defaults['A_minus'] <= 0:
-            raise ValueError(f'A_minus should be a positive value. Got {defaults['A_minus']}.')
+            raise ValueError(f'A_minus should be a positive value. Got {defaults["A_minus"]}.')
         if tau_a <= 0 or type(tau_a) not in [int, np.int_, torch.int]:
             raise ValueError(f'Tau A should be a positive integer value. Got {tau_a}.')
         if tau_e <= 0 or type(tau_e) not in [int, np.int_, torch.int]:
