@@ -31,18 +31,15 @@ class Model(torch.nn.Module):
         super().__init__()
 
         # Try cuda, then mps, then cpu
-        self.device = (
-            torch.device("cuda")
-            if torch.cuda.is_available()
-            else (
-                torch.device("mps")
-                if torch.backends.mps.is_available()
-                else torch.device("cpu")
-            )
-        )
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        else:
+            self.device = torch.device("cpu")
 
         self.spike_time = time_steps_per_action
-        self.optim = None  
+        self.optim = None
 
         self.con1 = torch.nn.Linear(
             2, 100, bias=False
@@ -174,10 +171,12 @@ def train(config: dict):
         print(before)
 
     rewards = []
+    ep_steps = 0
 
     for _ in range(total_steps):
         spks, mem = net(observation, use_traces=True)
         action = net.make_action(spks)
+        ep_steps += 1
 
         # printing stuff
         if config["print_act_obs"]:
@@ -193,6 +192,8 @@ def train(config: dict):
 
         if term or trunc:
             observation, _ = env.reset()
+            print(f"Episode ended ({ep_steps} steps). Mean reward: {np.mean(rewards)}")
+            rewards = []
 
         rewards.append(reward)
 
@@ -207,7 +208,7 @@ def train(config: dict):
 def test(config: dict):
 
     total_steps = config["episode_length"] * config["test_episode_amount"]
-    
+
     # Get model, load in state dict from training
     net = Model(config["time_steps_per_action"])
     state_dict = torch.load("model.pth")
@@ -247,7 +248,7 @@ def test(config: dict):
     episode_lengths = []
 
     for _ in range(total_steps):
-        spks, mem = net(observation, use_traces=False) # no traces needed for testing
+        spks, mem = net(observation, use_traces=False)  # no traces needed for testing
         action = net.make_action(spks)
 
         # printing stuff
@@ -272,17 +273,18 @@ def test(config: dict):
 
     rewards = np.array(rewards)
 
-# TODO - add some print statements to see what's going on
-#     average_reward = total_reward / total_steps
+    # TODO - add some print statements to see what's going on
+    #     average_reward = total_reward / total_steps
 
-#     print(f"Total Reward: {total_reward}")
-#     print(f"Episode Lengths: {episode_lengths}")
-#     print(f"Avg. Episode Length: {np.mean(episode_lengths)}")
-#     print(f"Average Reward: {average_reward}")
+    #     print(f"Total Reward: {total_reward}")
+    #     print(f"Episode Lengths: {episode_lengths}")
+    #     print(f"Avg. Episode Length: {np.mean(episode_lengths)}")
+    #     print(f"Average Reward: {average_reward}")
 
     torch.save(net.state_dict(), "model.pth")
 
     env.close()
+
 
 if __name__ == "__main__":
 
