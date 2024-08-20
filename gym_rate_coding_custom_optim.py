@@ -8,19 +8,7 @@ import torch
 import snntorch
 from rstdp import RSTDP
 
-from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard
-
-
-# TODO:
-
-# try to convert the observation space to spikes
-#   observation space is ndarray of shape (3,) representing the x/y of the free end, and its angular v
-#   Observation space:
-#   Box([-1. -1. -8.], [1. 1. 8.], (3,), float32)
-
-# try to convert from spikes to action space
-# Action space is ndarray with shape (1,) repre
-#   Box(-2.0, 2.0, (1,), float32)
+from torch.utils.tensorboard import SummaryWriter
 
 # Debug / view
 PRINT_ACT_OBS = False
@@ -101,10 +89,6 @@ class Model(torch.nn.Module):
             # print("neuron 1 has been chosen")
         else:
             act = -neur2 * 2
-        ###################
-        # is it even useful to have two output neurons? - since the rstdp algorithm doesn't distinguish between which neuron did what
-        # just if it's any good
-        ##################
 
         # neuron 1 is the positive action neuron, neuron 2 the negative.
         return act.numpy()[np.newaxis]
@@ -202,7 +186,7 @@ def train(config: dict):
         rewards.append(reward)
 
         # Log reward to TensorBoard
-        writer.add_scalar('Reward', reward, step)
+        writer.add_scalar("Reward", reward, step)
 
     rewards = np.array(rewards)
 
@@ -282,17 +266,9 @@ def test(config: dict):
         rewards.append(reward)
 
         # Log reward to TensorBoard
-        writer.add_scalar('Reward', reward, step)
+        writer.add_scalar("Reward", reward, step)
 
     rewards = np.array(rewards)
-
-    # TODO - add some print statements to see what's going on
-    #     average_reward = total_reward / total_steps
-
-    #     print(f"Total Reward: {total_reward}")
-    #     print(f"Episode Lengths: {episode_lengths}")
-    #     print(f"Avg. Episode Length: {np.mean(episode_lengths)}")
-    #     print(f"Average Reward: {average_reward}")
 
     torch.save(net.state_dict(), "model.pth")
 
