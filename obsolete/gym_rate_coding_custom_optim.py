@@ -1,6 +1,6 @@
 import snntorch.spikegen
-from imports import gymnasium as gym
-from imports import numpy as np
+from obsolete.imports import gymnasium as gym
+from obsolete.imports import numpy as np
 
 from gymnasium.wrappers import TransformObservation, TransformReward, NormalizeReward
 
@@ -282,7 +282,7 @@ if __name__ == "__main__":
         "time_steps_per_action": 50,
         "gravity": 0,  # default: g=10
         "episode_length": 500,
-        "train_episode_amount": 20,
+        "train_episode_amount": 2,
         "test_episode_amount": 1,
         "render_train": False,
         "render_test": True,
