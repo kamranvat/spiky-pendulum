@@ -8,6 +8,8 @@ import torch
 import snntorch
 from rstdp import RSTDP
 
+from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard
+
 
 # TODO:
 
@@ -133,6 +135,8 @@ def make_spikes(box: np.ndarray, spike_time_steps: int = 50) -> torch.Tensor:
 def train(config: dict):
     total_steps = config["episode_length"] * config["train_episode_amount"]
 
+    writer = SummaryWriter()  # TensorBoard writer
+
     # Generate environment
     if config["render_train"]:
         env = gym.make(
@@ -173,7 +177,7 @@ def train(config: dict):
     rewards = []
     ep_steps = 0
 
-    for _ in range(total_steps):
+    for step in range(total_steps):
         spks, mem = net(observation, use_traces=True)
         action = net.make_action(spks)
         ep_steps += 1
@@ -197,17 +201,23 @@ def train(config: dict):
 
         rewards.append(reward)
 
+        # Log reward to TensorBoard
+        writer.add_scalar('Reward', reward, step)
+
     rewards = np.array(rewards)
 
     print(f"Training complete. Mean reward: {rewards.mean()}")
     torch.save(net.state_dict(), "model.pth")
 
+    writer.close()  # Important for TensorBoard
     env.close()
 
 
 def test(config: dict):
 
     total_steps = config["episode_length"] * config["test_episode_amount"]
+
+    writer = SummaryWriter()  # TensorBoard writer
 
     # Get model, load in state dict from training
     net = Model(config["time_steps_per_action"])
@@ -247,7 +257,7 @@ def test(config: dict):
     episode_length = 0
     episode_lengths = []
 
-    for _ in range(total_steps):
+    for step in range(total_steps):
         spks, mem = net(observation, use_traces=False)  # no traces needed for testing
         action = net.make_action(spks)
 
@@ -271,6 +281,9 @@ def test(config: dict):
 
         rewards.append(reward)
 
+        # Log reward to TensorBoard
+        writer.add_scalar('Reward', reward, step)
+
     rewards = np.array(rewards)
 
     # TODO - add some print statements to see what's going on
@@ -283,6 +296,7 @@ def test(config: dict):
 
     torch.save(net.state_dict(), "model.pth")
 
+    writer.close()  # Close the writer
     env.close()
 
 
