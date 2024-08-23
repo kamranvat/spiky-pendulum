@@ -4,13 +4,8 @@ import numpy as np
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
-from encoders.observation_encoders import (
-    encode_observation_rate,
-    encode_observation_population,
-    encode_observation_temporal,
-)
-from encoders.output_encoders import encode_output_method1, encode_output_method2
-
+from encoders.observation_encoders import *
+from encoders.output_encoders import *
 import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
@@ -21,6 +16,46 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
 def train(config: dict):
     total_steps = config["episode_length"] * config["train_episode_amount"]
     writer = SummaryWriter()
+
+    encoding_methods = {
+        "rate": encode_observation_rate,
+        "population": encode_observation_population,
+        "temporal": encode_observation_temporal,
+    }
+
+    decoding_methods = {
+        "method1": decode_output_method1,
+        "rate": decode_output_rate,
+        "temporal": decode_output_temporal,
+        "population": decode_output_population,
+        "wta": decode_output_wta,
+        "vector": decode_output_vector,
+    }
+
+    input_sizes = {
+        "rate": 2,
+        "population": 3,
+        "temporal": 2,
+    }
+
+    output_sizes = {
+        "method1": 2,
+        "rate": 3,
+        "temporal": 2,
+        "population": 3,
+        "wta": 2,
+        "vector": 2,
+    }
+
+    encode_function = encoding_methods.get(config["observation_encoding"])
+    decode_function = decoding_methods.get(config["output_decoding"])
+    input_size = input_sizes.get(config["observation_encoding"])
+    output_size = output_sizes.get(config["output_decoding"])
+
+    if encode_function is None or decode_function is None:
+        raise ValueError("Invalid encoding or decoding method")
+    if input_size is None or output_size is None:
+        raise ValueError("Invalid input or output size")
 
     # Generate environment
     if config["render_train"]:
@@ -37,40 +72,16 @@ def train(config: dict):
             max_episode_steps=config["episode_length"],
         )
 
-    # Adjust input size based on the encoding method
-    if config["observation_encoding"] == "rate":
-        env = TransformObservation(
-            env,
-            lambda obs: encode_observation_rate(obs, config["time_steps_per_action"]),
-        )
-        input_size = 2
-    elif config["observation_encoding"] == "population":
-        env = TransformObservation(
-            env,
-            lambda obs: encode_observation_population(
-                obs, config["time_steps_per_action"]
-            ),
-        )
-        input_size = 3
-    elif config["observation_encoding"] == "temporal":
-        env = TransformObservation(
-            env,
-            lambda obs: encode_observation_temporal(
-                obs, config["time_steps_per_action"]
-            ),
-        )
-        input_size = 2
+    # Adjust observation space based on the encoding method
+    env = TransformObservation(
+        env,
+        lambda obs: encode_function(obs, config["time_steps_per_action"]),
+    )
 
     reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
     env = TransformReward(env, lambda r: r + reward_adjust)
 
     observation, info = env.reset()
-
-    # Adjust output size based on the encoding method
-    if config["output_encoding"] == "method1":
-        output_size = 2
-    elif config["output_encoding"] == "method2":
-        output_size = 3
 
     net = Model(input_size, output_size, config["time_steps_per_action"])
     net.set_optim()
@@ -80,10 +91,7 @@ def train(config: dict):
 
     for step in range(total_steps):
         spks, mem = net(observation, use_traces=True)
-        if config["output_encoding"] == "method1":
-            action = encode_output_method1(spks, net.spike_time)
-        elif config["output_encoding"] == "method2":
-            action = encode_output_method2(spks, net.spike_time)
+        action = decode_function(spks, net.spike_time)
         ep_steps += 1
 
         observation, reward, term, trunc, _ = env.step(action)

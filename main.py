@@ -21,7 +21,7 @@ if __name__ == "__main__":
         "print_act_obs": False,
         "print_before": False,
         "observation_encoding": "rate",  # Choose encoding method for observation
-        "output_encoding": "method1",  # Choose encoding method for output
+        "output_decoding": "method1",  # Choose encoding method for output
     }
 
     print("Training...")
