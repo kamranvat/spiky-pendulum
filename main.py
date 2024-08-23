@@ -2,6 +2,7 @@ from itertools import product
 from train_test.train import train
 from train_test.test import test
 import warnings
+from config import config_dict
 
 warnings.filterwarnings(
     "ignore",
@@ -21,24 +22,13 @@ def generate_config_combinations(observation_encodings, output_decodings, config
 
 
 def main():
-    config = {
-        "time_steps_per_action": 50,
-        "gravity": 0,
-        "episode_length": 500,
-        "train_episode_amount": 2,
-        "test_episode_amount": 1,
-        "render_train": False,
-        "render_test": False,
-        "print_act_obs": False,
-        "print_before": False,
-        "observation_encoding": " ",  
-        "output_decoding": " ",  
-    }
-
+    # Generate all possible combinations of observation encodings and output decodings
+    # Remove from the list if you want to exclude a certain combination
+    
     observation_encodings = ["rate", "population", "temporal"]
     output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
     config_combinations = generate_config_combinations(
-        observation_encodings, output_decodings, config
+        observation_encodings, output_decodings, config_dict
     )
 
     for config in config_combinations:

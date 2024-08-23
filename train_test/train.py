@@ -7,6 +7,7 @@ from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
 import os
+from config import encoding_methods, decoding_methods, input_sizes, output_sizes
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "3"  # Suppress TensorFlow warnings (we don't use TensorFlow)
@@ -16,36 +17,6 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
 def train(config: dict):
     total_steps = config["episode_length"] * config["train_episode_amount"]
     writer = SummaryWriter()
-
-    encoding_methods = {
-        "rate": encode_observation_rate,
-        "population": encode_observation_population,
-        "temporal": encode_observation_temporal,
-    }
-
-    decoding_methods = {
-        "method1": decode_output_method1,
-        "rate": decode_output_rate,
-        "temporal": decode_output_temporal,
-        "population": decode_output_population,
-        "wta": decode_output_wta,
-        "vector": decode_output_vector,
-    }
-
-    input_sizes = {
-        "rate": 2,
-        "population": 3,
-        "temporal": 2,
-    }
-
-    output_sizes = {
-        "method1": 2,
-        "rate": 3,
-        "temporal": 2,
-        "population": 3,
-        "wta": 2,
-        "vector": 2,
-    }
 
     encode_function = encoding_methods.get(config["observation_encoding"])
     decode_function = decoding_methods.get(config["output_decoding"])

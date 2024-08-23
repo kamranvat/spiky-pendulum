@@ -6,41 +6,12 @@ from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
+from config import encoding_methods, decoding_methods, input_sizes, output_sizes
 
 
 def test(config: dict):
     total_steps = config["episode_length"] * config["test_episode_amount"]
     writer = SummaryWriter()
-
-    encoding_methods = {
-        "rate": encode_observation_rate,
-        "population": encode_observation_population,
-        "temporal": encode_observation_temporal,
-    }
-
-    decoding_methods = {
-        "method1": decode_output_method1,
-        "rate": decode_output_rate,
-        "temporal": decode_output_temporal,
-        "population": decode_output_population,
-        "wta": decode_output_wta,
-        "vector": decode_output_vector,
-    }
-
-    input_sizes = {
-        "rate": 2,
-        "population": 3,
-        "temporal": 2,
-    }
-
-    output_sizes = {
-        "method1": 2,
-        "rate": 3,
-        "temporal": 2,
-        "population": 3,
-        "wta": 2,
-        "vector": 2,
-    }
 
     encode_function = encoding_methods.get(config["observation_encoding"])
     decode_function = decoding_methods.get(config["output_decoding"])
