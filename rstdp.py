@@ -188,6 +188,4 @@ Arguments:
                         f'Debug Error: Due to some error in the calculations (maybe dividing by 0?), \
                         the weights now contain NaNs \n\r{p.data=}'
                         )
-                
-        return None
-    
+                    
