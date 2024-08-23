@@ -20,7 +20,7 @@ if __name__ == "__main__":
         "render_test": True,
         "print_act_obs": False,
         "print_before": False,
-        "observation_encoding": "method1",  # Choose encoding method for observation
+        "observation_encoding": "rate",  # Choose encoding method for observation
         "output_encoding": "method1",  # Choose encoding method for output
     }
 

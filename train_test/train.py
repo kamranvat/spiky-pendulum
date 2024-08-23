@@ -4,16 +4,25 @@ import numpy as np
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
-from encoders.observation_encoders import encode_observation_method1, encode_observation_method2
+from encoders.observation_encoders import (
+    encode_observation_rate,
+    encode_observation_population,
+    encode_observation_temporal,
+)
 from encoders.output_encoders import encode_output_method1, encode_output_method2
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow warnings (we don't use TensorFlow)
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
+    "3"  # Suppress TensorFlow warnings (we don't use TensorFlow)
+)
+
 
 def train(config: dict):
     total_steps = config["episode_length"] * config["train_episode_amount"]
     writer = SummaryWriter()
 
+    # Generate environment
     if config["render_train"]:
         env = gym.make(
             "Pendulum-v1",
@@ -28,26 +37,40 @@ def train(config: dict):
             max_episode_steps=config["episode_length"],
         )
 
-    if config["observation_encoding"] == "method1":
+    # Adjust input size based on the encoding method
+    if config["observation_encoding"] == "rate":
         env = TransformObservation(
-            env, lambda obs: encode_observation_method1(obs, config["time_steps_per_action"])
+            env,
+            lambda obs: encode_observation_rate(obs, config["time_steps_per_action"]),
         )
-        input_size = 2  # Adjust based on the encoding method
-    elif config["observation_encoding"] == "method2":
+        input_size = 2
+    elif config["observation_encoding"] == "population":
         env = TransformObservation(
-            env, lambda obs: encode_observation_method2(obs, config["time_steps_per_action"])
+            env,
+            lambda obs: encode_observation_population(
+                obs, config["time_steps_per_action"]
+            ),
         )
-        input_size = 3  # Adjust based on the encoding method
+        input_size = 3
+    elif config["observation_encoding"] == "temporal":
+        env = TransformObservation(
+            env,
+            lambda obs: encode_observation_temporal(
+                obs, config["time_steps_per_action"]
+            ),
+        )
+        input_size = 2
 
     reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
     env = TransformReward(env, lambda r: r + reward_adjust)
 
     observation, info = env.reset()
 
+    # Adjust output size based on the encoding method
     if config["output_encoding"] == "method1":
-        output_size = 2  # Adjust based on the encoding method
+        output_size = 2
     elif config["output_encoding"] == "method2":
-        output_size = 3  # Adjust based on the encoding method
+        output_size = 3
 
     net = Model(input_size, output_size, config["time_steps_per_action"])
     net.set_optim()
@@ -71,7 +94,7 @@ def train(config: dict):
             rewards = []
 
         rewards.append(reward)
-        writer.add_scalar('Reward', reward, step)
+        writer.add_scalar("Reward", reward, step)
 
     rewards = np.array(rewards)
     torch.save(net.state_dict(), "model.pth")

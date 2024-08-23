@@ -5,8 +5,9 @@ from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
 from encoders.observation_encoders import (
-    encode_observation_method1,
-    encode_observation_method2,
+    encode_observation_rate,
+    encode_observation_population,
+    encode_observation_temporal,
 )
 from encoders.output_encoders import encode_output_method1, encode_output_method2
 
@@ -29,24 +30,30 @@ def test(config: dict):
             g=config["gravity"],
             max_episode_steps=config["episode_length"],
         )
-        
+
     # Adjust input size based on the encoding method
-    if config["observation_encoding"] == "method1":
+    if config["observation_encoding"] == "rate":
         env = TransformObservation(
             env,
-            lambda obs: encode_observation_method1(
-                obs, config["time_steps_per_action"]
-            ),
+            lambda obs: encode_observation_rate(obs, config["time_steps_per_action"]),
         )
         input_size = 2
-    elif config["observation_encoding"] == "method2":
+    elif config["observation_encoding"] == "population":
         env = TransformObservation(
             env,
-            lambda obs: encode_observation_method2(
+            lambda obs: encode_observation_population(
                 obs, config["time_steps_per_action"]
             ),
         )
         input_size = 3
+    elif config["observation_encoding"] == "temporal":
+        env = TransformObservation(
+            env,
+            lambda obs: encode_observation_temporal(
+                obs, config["time_steps_per_action"]
+            ),
+        )
+        input_size = 2
 
     # Set rewards
     reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
