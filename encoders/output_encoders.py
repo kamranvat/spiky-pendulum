@@ -22,7 +22,7 @@ def decode_output_rate(spks: torch.Tensor, spike_time: int) -> np.ndarray:
     return rates.numpy()
 
 
-def decode_output_temporal(spks: torch.Tensor) -> np.ndarray:
+def decode_output_temporal(spks: torch.Tensor, spike_time: int) -> np.ndarray:
     spike_times = (spks.cumsum(dim=0) == 1).float().argmax(dim=0)
     return spike_times.numpy()
 
