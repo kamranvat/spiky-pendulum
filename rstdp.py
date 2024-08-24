@@ -25,7 +25,7 @@ Arguments:
             a_plus = kwargs.get('a_plus', 0.008),
             a_minus = kwargs.get('a_minus', 0.0096),
             A_plus = kwargs.get('A_plus', 3.),
-            A_minus = kwargs.get('A_minus', 1.),
+            A_minus = kwargs.get('A_minus', 0.),
         )
 
         dt = kwargs.get('dt', 5)
@@ -48,16 +48,16 @@ Arguments:
         if dt <= 0 or not isinstance(dt, (int, np.int_, torch.int)):
             raise ValueError(f'dt should be a positive integer value. Got {dt=}.')
         
-        if defaults['a_plus'] <= 0:
+        if defaults['a_plus'] < 0:
             raise ValueError(f'a_plus should be a positive value. Got {defaults["a_plus"]=}.') 
         
-        if defaults['a_minus'] <= 0:
+        if defaults['a_minus'] < 0:
             raise ValueError(f'a_minus should be a positive value. Got {defaults["a_minus"]=}.') 
         
-        if defaults['A_plus'] <= 0:
+        if defaults['A_plus'] < 0:
             raise ValueError(f'A_plus should be a positive value. Got {defaults["A_plus"]=}.')
         
-        if defaults['A_minus'] <= 0:
+        if defaults['A_minus'] < 0:
             raise ValueError(f'A_minus should be a positive value. Got {defaults["A_minus"]=}.')
         
         if tau_a <= 0 or not isinstance(tau_a, (int, np.int_, torch.int)):
