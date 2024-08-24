@@ -4,7 +4,9 @@ from rstdp import RSTDP
 
 
 class Model(torch.nn.Module):
-    def __init__(self, input_size: int, output_size: int, time_steps_per_action: int = 50):
+    def __init__(
+        self, input_size: int, output_size: int, time_steps_per_action: int = 50
+    ):
         super().__init__()
 
         # Try cuda, then mps, then cpu
@@ -27,7 +29,9 @@ class Model(torch.nn.Module):
         # self.con3 = torch.nn.Linear(50, 2, bias = False)
         # self.lif3 = snntorch.Leaky(0.9, 0.5, surrogate_disable = True)
 
-        print(f"Model initialized with input size {input_size} using device: {self.device}")
+        print(
+            f"Model initialized with input size {input_size} using device: {self.device}"
+        )
 
     def forward(
         self, x: torch.Tensor, use_traces: bool = False

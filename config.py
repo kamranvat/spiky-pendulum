@@ -43,15 +43,15 @@ output_sizes = {
 }
 
 config_dict = {
-        "time_steps_per_action": 50,
-        "gravity": 0,
-        "episode_length": 500,
-        "train_episode_amount": 2,
-        "test_episode_amount": 1,
-        "render_train": False,
-        "render_test": True,
-        "print_act_obs": False,
-        "print_before": False,
-        "observation_encoding": " ",  
-        "output_decoding": " ",  
-    }
+    "time_steps_per_action": 50,
+    "gravity": 0,
+    "episode_length": 500,
+    "train_episode_amount": 2,
+    "test_episode_amount": 1,
+    "render_train": False,
+    "render_test": True,
+    "print_act_obs": False,
+    "print_before": False,
+    "observation_encoding": " ",
+    "output_decoding": " ",
+}

@@ -24,7 +24,7 @@ def generate_config_combinations(observation_encodings, output_decodings, config
 def main():
     # Generate all possible combinations of observation encodings and output decodings
     # Remove from the list if you want to exclude a certain combination
-    
+
     observation_encodings = ["rate", "population", "temporal"]
     output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
     config_combinations = generate_config_combinations(
@@ -32,9 +32,19 @@ def main():
     )
 
     for config in config_combinations:
-        print("Training combination:", config["observation_encoding"], "+", config["output_decoding"])
+        print(
+            "Training combination:",
+            config["observation_encoding"],
+            "+",
+            config["output_decoding"],
+        )
         train(config)
-        print("Testing combination:", config["observation_encoding"], "+", config["output_decoding"])
+        print(
+            "Testing combination:",
+            config["observation_encoding"],
+            "+",
+            config["output_decoding"],
+        )
         test(config)
 
 
