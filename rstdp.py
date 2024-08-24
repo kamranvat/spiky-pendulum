@@ -39,7 +39,7 @@ Arguments:
         self.cur_step = 1
 
         # checking if user inputs are correct.
-        if time_steps <= 0 or type(time_steps) not in [int, np.int_, torch.int]:
+        if time_steps <= 0 or not isinstance(time_steps, (int, np.int_, torch.int)):
             raise ValueError(f'Time steps should be a postive integer value. Got {time_steps=}.')
         
         if defaults['lr'] <= 0:
@@ -174,6 +174,9 @@ Arguments:
             except:
                 raise ValueError(f'Could not convert reward to tensor. Got {type(reward)}')
 
+        if reward.isnan().any() == True:
+            raise ValueError(f'Got reward that is NaN.\n\r{reward=}')
+
         for idx, group in enumerate(self.param_groups):
             for i, p in enumerate(group['params']):
 
@@ -183,7 +186,7 @@ Arguments:
                 # weight update, summing the time steps together 
                 p.data.add_(e_trace.sum(dim = 2))
 
-                if (p.data.isnan().any() == True).item():
+                if p.data.isnan().any() == True:
                     raise ValueError(
                         f'Debug Error: Due to some error in the calculations (maybe dividing by 0?), \
                         the weights now contain NaNs \n\r{p.data=}'
