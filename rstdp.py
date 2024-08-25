@@ -2,6 +2,7 @@ import torch
 import warnings
 import numpy as np
 
+# TODO: make it work with biases (currently unsupported)
 
 class RSTDP(torch.optim.Optimizer):
     def __init__(self, params, time_steps: int, lr: float = 1e-3, **kwargs):
