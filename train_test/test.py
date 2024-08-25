@@ -6,7 +6,13 @@ from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
-from config import encoding_methods, decoding_methods, input_sizes, output_sizes
+from config import (
+    encoding_methods,
+    decoding_methods,
+    input_sizes,
+    output_sizes,
+    tb_test_interval,
+)
 
 
 def test(config: dict):
@@ -55,27 +61,30 @@ def test(config: dict):
     net.load_state_dict(state_dict)
 
     rewards = []
-    total_reward = 0
-    episode_length = 0
-    episode_lengths = []
+    ep_steps = 0
 
     for step in range(total_steps):
         spks, mem = net(observation, use_traces=False)
         action = decode_function(spks, net.spike_time)
-
         observation, reward, term, trunc, _ = env.step(action)
-        total_reward += reward
-        episode_length += 1
+        ep_steps += 1
 
         if term or trunc:
             observation, _ = env.reset()
-            episode_lengths.append(episode_length)
-            episode_length = 0
+            writer.add_scalar("Episode Length", ep_steps, step)
+            ep_steps = 0
+            rewards = []
 
         rewards.append(reward)
-        writer.add_scalar("Reward", reward, step)
 
-    rewards = np.array(rewards)
+        # Track reward every tb_test_interval steps
+        if step % tb_test_interval == 0:
+            avg_reward = np.mean(rewards)
+            median_reward = np.median(rewards)
+            writer.add_scalar("Median Reward", median_reward, step)
+            writer.add_scalar("Average Reward", avg_reward, step)
+            rewards = []
+
     torch.save(net.state_dict(), "model.pth")
     writer.close()
     env.close()
