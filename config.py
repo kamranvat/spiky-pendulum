@@ -16,6 +16,13 @@ from encoders.output_encoders import (
     decode_output_vector,
 )
 
+from encoders.reward_shaping import (
+    bin_reward,
+    norm_reward_shift,
+    norm_reward_gauss,
+    norm_reward_sigm
+)
+
 # Encoding and decoding method names
 encoding_methods = {
     "rate": encode_observation_rate,
@@ -30,6 +37,13 @@ decoding_methods = {
     "population": decode_output_population,
     "wta": decode_output_wta,
     "vector": decode_output_vector,
+}
+
+reward_shaping = {
+    "bin": bin_reward,
+    "shift": norm_reward_shift,
+    "gauss": norm_reward_gauss,
+    "sigmoid": norm_reward_sigm
 }
 
 # Input sizes for each encoding method (number of neurons)
@@ -62,8 +76,9 @@ config_dict = {
     "render_test": True,
     "print_act_obs": False,
     "print_before": False,
-    "observation_encoding": " ",  # Choose in main.py
-    "output_decoding": " ",  # Choose in main.py
+    "observation_encoding": " ",    # Choose in main.py
+    "output_decoding": " ",         # Choose in main.py
+    "reward_shape": " ",            # Choose in main.py
 }
 
 # Interval for logging to TensorBoard (in steps)
