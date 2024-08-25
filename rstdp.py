@@ -200,8 +200,8 @@ class RSTDP(torch.optim.Optimizer):
                     f"Could not convert reward to tensor. Got {type(reward)}"
                 )
 
-        if reward.isnan().any() == True:
-            raise ValueError(f"Got reward that is NaN.\n\r{reward=}")
+        if reward.isnan().any() or reward.isinf().any():
+            raise ValueError(f"Got reward that is NaN or inf.\n\r{reward=}")
 
         for idx, group in enumerate(self.param_groups):
             for i, p in enumerate(group["params"]):
@@ -216,8 +216,8 @@ class RSTDP(torch.optim.Optimizer):
                 # weight update, summing the time steps together
                 p.data.add_(e_trace.sum(dim=2))
 
-                if p.data.isnan().any() == True:
+                if p.data.isnan().any() or p.data.isinf().any():
                     raise ValueError(
                         f"Debug Error: Due to some error in the calculations (maybe dividing by 0?), \
-                        the weights now contain NaNs \n\r{p.data=}"
+                        the weights now contain NaNs or inf. \n\r{p.data=}"
                     )
