@@ -46,7 +46,7 @@ def test(config: dict):
 
     env = TransformObservation(
         env,
-        lambda obs: encode_observation_rate(obs, config["time_steps_per_action"]),
+        lambda obs: encode_function(obs, config["time_steps_per_action"]),
     )
 
     # Set rewards
