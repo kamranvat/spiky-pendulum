@@ -25,8 +25,13 @@ def main():
     # Generate all possible combinations of observation encodings and output decodings
     # Remove from the list if you want to exclude a certain combination
 
-    observation_encodings = ["rate", "population", "temporal"]
-    output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
+    # Options:
+    # observation_encodings = ["rate", "population", "temporal"]
+    # output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
+
+    observation_encodings = ["rate"]
+    output_decodings = ["rate"]
+
     config_combinations = generate_config_combinations(
         observation_encodings, output_decodings, config_dict
     )

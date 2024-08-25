@@ -7,7 +7,13 @@ from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
 import os
-from config import encoding_methods, decoding_methods, input_sizes, output_sizes
+from config import (
+    encoding_methods,
+    decoding_methods,
+    input_sizes,
+    output_sizes,
+    tb_train_interval,
+)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "3"  # Suppress TensorFlow warnings (we don't use TensorFlow)
@@ -63,19 +69,26 @@ def train(config: dict):
     for step in range(total_steps):
         spks, mem = net(observation, use_traces=True)
         action = decode_function(spks, net.spike_time)
-        ep_steps += 1
-
         observation, reward, term, trunc, _ = env.step(action)
         net.optim.step(reward)
+        ep_steps += 1
 
         if term or trunc:
             observation, _ = env.reset()
+            writer.add_scalar("Episode Length", ep_steps, step)
+            ep_steps = 0
             rewards = []
 
         rewards.append(reward)
-        writer.add_scalar("Reward", reward, step)
 
-    rewards = np.array(rewards)
+        # Track reward every tb_train_interval steps
+        if step % tb_train_interval == 0:
+            avg_reward = np.mean(rewards)
+            median_reward = np.median(rewards)
+            writer.add_scalar("Median Reward", median_reward, step)
+            writer.add_scalar("Average Reward", avg_reward, step)
+            rewards = []
+
     torch.save(net.state_dict(), "model.pth")
     writer.close()
     env.close()
