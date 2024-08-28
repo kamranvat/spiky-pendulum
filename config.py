@@ -76,9 +76,12 @@ config_dict = {
     "render_test": True,
     "print_act_obs": False,
     "print_before": False,
+    "record_actions": False,
+    "runs": 0,
     "observation_encoding": " ",    # Choose in main.py
     "output_decoding": " ",         # Choose in main.py
     "reward_shape": " ",            # Choose in main.py
+    "learning_rate": 0,             # Choose in main.py
 }
 
 # Interval for logging to TensorBoard (in steps)

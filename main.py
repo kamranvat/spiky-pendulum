@@ -11,13 +11,14 @@ warnings.filterwarnings(
 )  # Ignore deprecation warning (gym version causes it, but nothing we can do about it)
 
 
-def generate_config_combinations(observation_encodings, output_decodings, reward,config_dict):
+def generate_config_combinations(observation_encodings, output_decodings, reward, learning_rates, config_dict):
     config_combinations = []
-    for obs_enc, out_dec, rew_sh in product(observation_encodings, output_decodings, reward):
+    for obs_enc, out_dec, rew_sh, lr in product(observation_encodings, output_decodings, reward, learning_rates):
         new_config = config_dict.copy()
         new_config["observation_encoding"] = obs_enc
         new_config["output_decoding"] = out_dec
         new_config["reward_shape"] = rew_sh
+        new_config["learning_rate"] = lr
         config_combinations.append(new_config)
     return config_combinations
 
@@ -30,14 +31,15 @@ def main():
     # Options:
     # observation_encodings = ["rate", "population", "temporal"]
     # output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
-    # reward_shapings = ["bin", "shift", "normalize"]
+    # reward_shapings = ["bin", "shift", "norm_gym", "norm_one"]
 
     observation_encodings = ["rate"]
     output_decodings = ["rate"]
-    reward_shapings = ["shift", "normalize"]
+    reward_shapings = ["shift", "norm_gym", "norm_one"]
+    learning_rates = [0.1, 0.01, 0.001]
 
     config_combinations = generate_config_combinations(
-        observation_encodings, output_decodings, reward_shapings, config_dict
+        observation_encodings, output_decodings, reward_shapings, learning_rates, config_dict
     )
 
     for config in config_combinations:

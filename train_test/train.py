@@ -62,11 +62,11 @@ def train(config: dict):
         env = TransformReward(env, lambda r: reward_function(r))
     else:
         env = reward_function(env)
-        
+
     observation, info = env.reset()
 
     net = Model(input_size, output_size, config["time_steps_per_action"])
-    net.set_optim()
+    net.set_optim(lr = config["learning_rate"])
 
     rewards = []
     ep_steps = 0
@@ -85,6 +85,7 @@ def train(config: dict):
             rewards = []
 
         rewards.append(reward)
+        writer.add_scalar("Actions", action, step)
 
         # Track reward every tb_train_interval steps
         if step % tb_train_interval == 0:

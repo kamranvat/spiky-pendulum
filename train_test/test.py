@@ -81,6 +81,7 @@ def test(config: dict):
             rewards = []
 
         rewards.append(reward)
+        writer.add_scalar("Actions", action, step)
 
         # Track reward every tb_test_interval steps
         if step % tb_test_interval == 0:
