@@ -58,7 +58,7 @@ input_sizes = {
 # TODO these are placeholder values
 output_sizes = {
     "method1": 2,
-    "rate": 3,
+    "rate": 1,
     "temporal": 2,
     "population": 3,
     "wta": 2,
