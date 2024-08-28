@@ -18,7 +18,8 @@ from encoders.output_encoders import (
 
 from encoders.reward_shaping import (
     bin_reward,
-    norm_reward_shift,
+    reward_shift,
+    norm_reward_oneone
 )
 from gymnasium.wrappers.normalize import NormalizeReward
 
@@ -40,8 +41,9 @@ decoding_methods = {
 
 reward_shaping = {
     "bin": bin_reward,
-    "shift": norm_reward_shift,
-    "normalize": NormalizeReward
+    "shift": reward_shift,
+    "norm_gym": NormalizeReward,
+    "norm_one": norm_reward_oneone
 }
 
 # Input sizes for each encoding method (number of neurons)

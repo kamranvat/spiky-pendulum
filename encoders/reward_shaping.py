@@ -15,5 +15,9 @@ def bin_reward(r):
     elif r >= 0:
         return 0.5
 
-def norm_reward_shift(r):
+def reward_shift(r):
     return r + MAX_REWARD / 2
+
+def norm_reward_oneone(r):
+    half = MAX_REWARD / 2
+    return (r + half) / half
