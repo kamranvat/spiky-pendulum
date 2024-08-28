@@ -1,6 +1,6 @@
-import torch
-import snntorch.spikegen
-import numpy as np
+from imports import torch
+from imports import snntorch
+from imports import np
 
 
 def encode_observation_rate(

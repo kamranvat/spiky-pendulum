@@ -1,12 +1,8 @@
-import torch
-import gymnasium as gym
-import numpy as np
-import types
-from gymnasium.wrappers import TransformObservation, TransformReward
-from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
-from encoders.observation_encoders import *
-from encoders.output_encoders import *
+from imports import TransformObservation, TransformReward, SummaryWriter
+from imports import torch
+from imports import np, gym, types
+from models.model import Model
 from config import (
     encoding_methods,
     decoding_methods,

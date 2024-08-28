@@ -21,7 +21,7 @@ from encoders.reward_shaping import (
     reward_shift,
     norm_reward_oneone
 )
-from gymnasium.wrappers.normalize import NormalizeReward
+from imports import NormalizeReward
 
 # Encoding and decoding method names
 encoding_methods = {
@@ -68,9 +68,9 @@ output_sizes = {
 # Configuration for training and testing
 config_dict = {
     "time_steps_per_action": 50,
-    "gravity": 0,
+    "gravity": 1,
     "episode_length": 500,
-    "train_episode_amount": 25,
+    "train_episode_amount": 2,
     "test_episode_amount": 1,
     "render_train": False,
     "render_test": True,

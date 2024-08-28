@@ -1,5 +1,5 @@
-import torch
-import snntorch
+from imports import torch
+from imports import snntorch
 from rstdp import RSTDP
 
 

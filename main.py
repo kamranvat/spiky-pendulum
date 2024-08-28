@@ -1,8 +1,16 @@
 from itertools import product
 from train_test.train import train
 from train_test.test import test
-import warnings
 from config import config_dict
+from imports import warnings
+
+
+import gc
+gc.enable()
+# gc.set_debug(gc.DEBUG_LEAK)
+
+import tracemalloc
+tracemalloc.start(10)
 
 warnings.filterwarnings(
     "ignore",
@@ -35,13 +43,15 @@ def main():
 
     observation_encodings = ["rate"]
     output_decodings = ["rate"]
-    reward_shapings = ["shift", "norm_gym", "norm_one"]
-    learning_rates = [0.1, 0.01, 0.001]
+    reward_shapings = ["shift"] #, "norm_gym", "norm_one"]
+    learning_rates = [0.1, 0.01] #, 0.001]
 
     config_combinations = generate_config_combinations(
         observation_encodings, output_decodings, reward_shapings, learning_rates, config_dict
     )
 
+
+    snapshots = []
     for config in config_combinations:
         print(
             "Training combination:",
@@ -52,6 +62,8 @@ def main():
             config["reward_shape"],
         )
         train(config)
+        gc.collect()
+        snapshots.append(tracemalloc.take_snapshot())
         print(
             "Testing combination:",
             config["observation_encoding"],
@@ -62,6 +74,27 @@ def main():
         )
         test(config)
 
+        return snapshots
+
 
 if __name__ == "__main__":
-    main()
+    snapshots = []
+    snapshots.append(tracemalloc.take_snapshot())
+    
+    snapshots.append(main())
+    snapshots.append(tracemalloc.take_snapshot())
+
+    for idx, snap in enumerate(snapshots):
+        top_stats = snap.statistics('lineno')
+        print('------------------------{}------------------------'.format(idx))
+        print("[ Top 10 ]")
+        for stat in top_stats[:10]:
+            print(stat)
+
+        print("\n_______________________________________________________________________________________________________________\n")
+
+        top_stats = snap.compare_to(snapshots[idx-1], 'lineno')
+
+        print("[ Top 10 differences ]")
+        for stat in top_stats[:10]:
+            print(stat)

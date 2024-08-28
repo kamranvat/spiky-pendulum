@@ -1,5 +1,5 @@
-import torch
-import numpy as np
+from imports import torch
+from imports import np
 
 
 def decode_output_method1(spks: torch.Tensor, spike_time: int) -> np.ndarray:

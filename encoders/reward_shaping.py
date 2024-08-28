@@ -1,5 +1,4 @@
-import numpy as np
-from scipy.stats import norm
+from imports import np
 
 MAX_REWARD = np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)
 
