@@ -52,7 +52,10 @@ def test(config: dict):
     )
 
     # Set rewards
-    env = TransformReward(env, lambda r: reward_function(r))
+    if isinstance(reward_function, function):
+        env = TransformReward(env, lambda r: reward_function(r))
+    else:
+        env = reward_function(env)
 
     observation, info = env.reset()
 
