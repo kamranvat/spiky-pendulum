@@ -1,6 +1,7 @@
 import torch
 import gymnasium as gym
 import numpy as np
+import types
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
 from models.big_model import Model
@@ -52,7 +53,7 @@ def test(config: dict):
     )
 
     # Set rewards
-    if isinstance(reward_function, function):
+    if isinstance(reward_function, types.FunctionType):
         env = TransformReward(env, lambda r: reward_function(r))
     else:
         env = reward_function(env)

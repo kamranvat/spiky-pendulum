@@ -1,9 +1,10 @@
 import torch
 import gymnasium as gym
 import numpy as np
+import types
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
-from models.big_model import Model
+from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
 import os
@@ -57,10 +58,11 @@ def train(config: dict):
         lambda obs: encode_function(obs, config["time_steps_per_action"]),
     )
 
-    if isinstance(reward_function, function):
+    if isinstance(reward_function, types.FunctionType):
         env = TransformReward(env, lambda r: reward_function(r))
     else:
         env = reward_function(env)
+        
     observation, info = env.reset()
 
     net = Model(input_size, output_size, config["time_steps_per_action"])
