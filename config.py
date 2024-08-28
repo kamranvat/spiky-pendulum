@@ -19,9 +19,8 @@ from encoders.output_encoders import (
 from encoders.reward_shaping import (
     bin_reward,
     norm_reward_shift,
-    norm_reward_gauss,
-    norm_reward_sigm
 )
+from gymnasium.wrappers.normalize import NormalizeReward
 
 # Encoding and decoding method names
 encoding_methods = {
@@ -42,8 +41,7 @@ decoding_methods = {
 reward_shaping = {
     "bin": bin_reward,
     "shift": norm_reward_shift,
-    "gauss": norm_reward_gauss,
-    "sigmoid": norm_reward_sigm
+    "normalize": NormalizeReward
 }
 
 # Input sizes for each encoding method (number of neurons)
@@ -70,7 +68,7 @@ config_dict = {
     "time_steps_per_action": 50,
     "gravity": 0,
     "episode_length": 500,
-    "train_episode_amount": 50,
+    "train_episode_amount": 25,
     "test_episode_amount": 1,
     "render_train": False,
     "render_test": True,

@@ -30,11 +30,11 @@ def main():
     # Options:
     # observation_encodings = ["rate", "population", "temporal"]
     # output_decodings = ["method1", "rate", "temporal", "population", "wta", "vector"]
-    # reward_shapings = ["bin", "shift", "gauss", "sigmoid"]
+    # reward_shapings = ["bin", "shift", "normalize"]
 
     observation_encodings = ["rate"]
     output_decodings = ["rate"]
-    reward_shapings = ["shift", "gauss"]
+    reward_shapings = ["shift", "normalize"]
 
     config_combinations = generate_config_combinations(
         observation_encodings, output_decodings, reward_shapings, config_dict
@@ -42,11 +42,11 @@ def main():
 
     for config in config_combinations:
         print(
-            "Training combination: ",
+            "Training combination:",
             config["observation_encoding"],
-            "+ ",
+            "+",
             config["output_decoding"],
-            "+ ",
+            "+",
             config["reward_shape"],
         )
         train(config)
@@ -55,7 +55,7 @@ def main():
             config["observation_encoding"],
             "+",
             config["output_decoding"],
-            "+ ",
+            "+",
             config["reward_shape"],
         )
         test(config)
