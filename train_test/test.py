@@ -4,7 +4,7 @@ import numpy as np
 import types
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
-from models.big_model import Model
+from models.model import Model
 from encoders.observation_encoders import *
 from encoders.output_encoders import *
 from config import (
