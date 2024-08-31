@@ -21,6 +21,14 @@ def decode_output_rate(spks: torch.Tensor, spike_time: int) -> np.ndarray:
     rates = spks.sum(dim=0) / spike_time
     return rates.numpy()
 
+def decode_binning(spks: torch.Tensor, spike_time: int) -> np.ndarray:
+    total = spks.sum(dim=0)
+    bins = np.arange(0,spike_time,spike_time/5).tolist()
+
+    for bin in bins[1:]:
+        pass
+
+
 
 def decode_output_temporal(spks: torch.Tensor, spike_time: int) -> np.ndarray:
     spike_times = (spks.cumsum(dim=0) == 1).float().argmax(dim=0)
