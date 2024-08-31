@@ -12,6 +12,10 @@ gc.enable()
 import tracemalloc
 tracemalloc.start(10)
 
+import pandas as pd
+import re
+import objgraph
+
 warnings.filterwarnings(
     "ignore",
     category=DeprecationWarning,
@@ -73,7 +77,7 @@ def main():
             config["reward_shape"],
         )
         test(config)
-
+        snapshots.append(tracemalloc.take_snapshot())
         return snapshots
 
 
@@ -81,20 +85,35 @@ if __name__ == "__main__":
     snapshots = []
     snapshots.append(tracemalloc.take_snapshot())
     
-    snapshots.append(main())
+    snaps = main()
+
+    for snap in snaps:
+        snapshots.append(snap)
     snapshots.append(tracemalloc.take_snapshot())
 
-    for idx, snap in enumerate(snapshots):
-        top_stats = snap.statistics('lineno')
-        print('------------------------{}------------------------'.format(idx))
-        print("[ Top 10 ]")
-        for stat in top_stats[:10]:
-            print(stat)
+    col_names = [f'Diff to {i}' for i in range(len(snapshots)-1)]
+    df = pd.DataFrame(columns = col_names)
 
-        print("\n_______________________________________________________________________________________________________________\n")
+    for idx, snap in enumerate(snapshots):
+        if idx == 0: continue
+        # top_stats = snap.statistics('lineno')
+        # print('------------------------{}------------------------'.format(idx))
+        # print("[ Top 10 ]")
+
+        # print("\n_______________________________________________________________________________________________________________\n")
 
         top_stats = snap.compare_to(snapshots[idx-1], 'lineno')
+        filter = ['frozen importlib._bootstrap', '/home/fabian/','miniconda3/envs/neuro/lib/']
+        for stat in top_stats[:20]:
+            asstr = stat.traceback.__str__()
+            if filter[0] in asstr: continue
+            
+            for fil in filter[1:]:
+                asstr = re.sub(fil, "", asstr)
 
-        print("[ Top 10 differences ]")
-        for stat in top_stats[:10]:
-            print(stat)
+            df.loc[asstr, f'Diff to {idx-1}'] = stat.size_diff
+
+    df['Total'] = df.sum(axis = 1)
+    df = df.sort_values('Total', ascending = False)
+
+    breakpoint()
