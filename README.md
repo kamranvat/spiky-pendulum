@@ -28,13 +28,25 @@ To set up the conda environment, follow these steps:
 
 ## Running the Project
 
-To run the main script, use the following command:
+To run the main script, use the following commands:
 
+To run training only:
+
+```sh
+python main.py -train
+```
+
+To run testing only: 
+```sh
+python main.py -test
+```
+
+To run both training and testing: 
 ```sh
 python main.py
 ```
 
-To edit paramters, open `config.py` and edit the `config_dict`.
+To edit parameters, open `config.py` and edit the `config_dict`.
 
 
 ## Tracking the Progress or view Results
