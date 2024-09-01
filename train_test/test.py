@@ -1,6 +1,7 @@
 import torch
 import gymnasium as gym
 import numpy as np
+import types
 from gymnasium.wrappers import TransformObservation, TransformReward
 from torch.utils.tensorboard import SummaryWriter
 from models.model import Model
@@ -9,6 +10,7 @@ from encoders.output_encoders import *
 from config import (
     encoding_methods,
     decoding_methods,
+    reward_shaping,
     input_sizes,
     output_sizes,
     tb_test_interval,
@@ -21,6 +23,7 @@ def test(config: dict):
 
     encode_function = encoding_methods.get(config["observation_encoding"])
     decode_function = decoding_methods.get(config["output_decoding"])
+    reward_function = reward_shaping.get(config["reward_shape"])
     input_size = input_sizes.get(config["observation_encoding"])
     output_size = output_sizes.get(config["output_decoding"])
 
@@ -50,8 +53,10 @@ def test(config: dict):
     )
 
     # Set rewards
-    reward_adjust = (np.square(np.pi) + 0.1 * np.square(8) + 0.001 * np.square(2)) / 2
-    env = TransformReward(env, lambda r: r + reward_adjust)
+    if isinstance(reward_function, types.FunctionType):
+        env = TransformReward(env, lambda r: reward_function(r))
+    else:
+        env = reward_function(env)
 
     observation, info = env.reset()
 
@@ -76,6 +81,7 @@ def test(config: dict):
             rewards = []
 
         rewards.append(reward)
+        writer.add_scalar("Actions", action, step)
 
         # Track reward every tb_test_interval steps
         if step % tb_test_interval == 0:

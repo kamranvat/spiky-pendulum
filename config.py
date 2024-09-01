@@ -16,6 +16,13 @@ from encoders.output_encoders import (
     decode_output_vector,
 )
 
+from encoders.reward_shaping import (
+    bin_reward,
+    reward_shift,
+    norm_reward_oneone
+)
+from gymnasium.wrappers.normalize import NormalizeReward
+
 # Encoding and decoding method names
 encoding_methods = {
     "rate": encode_observation_rate,
@@ -32,6 +39,13 @@ decoding_methods = {
     "vector": decode_output_vector,
 }
 
+reward_shaping = {
+    "bin": bin_reward,
+    "shift": reward_shift,
+    "norm_gym": NormalizeReward,
+    "norm_one": norm_reward_oneone
+}
+
 # Input sizes for each encoding method (number of neurons)
 # TODO these are placeholder values
 input_sizes = {
@@ -44,7 +58,7 @@ input_sizes = {
 # TODO these are placeholder values
 output_sizes = {
     "method1": 2,
-    "rate": 3,
+    "rate": 1,
     "temporal": 2,
     "population": 3,
     "wta": 2,
@@ -56,14 +70,18 @@ config_dict = {
     "time_steps_per_action": 50,
     "gravity": 0,
     "episode_length": 500,
-    "train_episode_amount": 50,
+    "train_episode_amount": 25,
     "test_episode_amount": 1,
     "render_train": False,
     "render_test": True,
     "print_act_obs": False,
     "print_before": False,
-    "observation_encoding": " ",  # Choose in main.py
-    "output_decoding": " ",  # Choose in main.py
+    "record_actions": False,
+    "runs": 0,
+    "observation_encoding": " ",    # Choose in main.py
+    "output_decoding": " ",         # Choose in main.py
+    "reward_shape": " ",            # Choose in main.py
+    "learning_rate": 0,             # Choose in main.py
 }
 
 # Interval for logging to TensorBoard (in steps)
