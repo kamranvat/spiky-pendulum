@@ -67,10 +67,10 @@ output_sizes = {
 
 # Configuration for training and testing
 config_dict = {
-    "time_steps_per_action": 50,
-    "gravity": 0,
+    "time_steps_per_action": 20,
+    "gravity": 15,
     "episode_length": 500,
-    "train_episode_amount": 25,
+    "train_episode_amount": 200,
     "test_episode_amount": 1,
     "render_train": False,
     "render_test": True,
@@ -85,5 +85,5 @@ config_dict = {
 }
 
 # Interval for logging to TensorBoard (in steps)
-tb_train_interval = 250
-tb_test_interval = 10
+tb_train_interval = 500
+tb_test_interval = 1
