@@ -1,0 +1,45 @@
+,Diff to 0,Diff to 1,Diff to 2,Total
+python3.12/site-packages/snntorch/_neurons/leaky.py:239,7999840,3999840,,11999680
+python3.12/site-packages/snntorch/_neurons/neurons.py:83,4000000,2000048,,6000048
+python3.12/dataclasses.py:473,708666,,,708666
+python3.12/linecache.py:137,268201,,,268201
+<frozen posixpath>:413,193019,,,193019
+python3.12/functools.py:58,189528,,,189528
+python3.12/site-packages/sympy/core/facts.py:580,159600,,,159600
+python3.12/re/_compiler.py:761,122296,19088,,141384
+<string>:2,137144,,,137144
+python3.12/site-packages/snntorch/spikegen.py:437,80000,40000,,120000
+<frozen abc>:106,90903,24795,,115698
+python3.12/functools.py:52,98839,,,98839
+python3.12/dataclasses.py:424,95760,,,95760
+python3.12/site-packages/torch/_dynamo/trace_rules.py:2789,73744,,,73744
+python3.12/site-packages/pkg_resources/__init__.py:2665,,17888,,17888
+<frozen posixpath>:88,,14726,,14726
+python3.12/site-packages/pygame/colordict.py:26,,13056,,13056
+python3.12/site-packages/pygame/__init__.py:93,,12992,,12992
+python3.12/site-packages/pkg_resources/__init__.py:2195,,12128,,12128
+<frozen posixpath>:186,,11648,,11648
+python3.12/typing.py:381,,9240,,9240
+python3.12/enum.py:583,,9176,,9176
+python3.12/site-packages/pkg_resources/__init__.py:3087,,8839,,8839
+python3.12/tracemalloc.py:558,,,3336,3336
+Documents/Uni/Semester4/Modelling_of_Synaptic_plasticity/code/synaptic_plasticity_project/main.py:87,,,768,768
+python3.12/tracemalloc.py:560,,,352,352
+python3.12/tracemalloc.py:423,,,344,344
+python3.12/site-packages/torch/_tensor.py:424,,,-56,-56
+python3.12/threading.py:359,,,-56,-56
+python3.12/threading.py:1167,,,-56,-56
+python3.12/site-packages/gymnasium/envs/classic_control/pendulum.py:214,,,-56,-56
+python3.12/site-packages/torch/_tensor.py:416,,,-64,-64
+python3.12/queue.py:71,,,-64,-64
+python3.12/site-packages/tensorboard/summary/writer/event_file_writer.py:199,,,-64,-64
+python3.12/site-packages/numpy/core/_methods.py:99,,,-64,-64
+python3.12/site-packages/torch/serialization.py:862,,,-72,-72
+python3.12/threading.py:1370,,,-80,-80
+python3.12/site-packages/torch/_tensor.py:425,,,-112,-112
+python3.12/site-packages/gymnasium/envs/classic_control/pendulum.py:210,,,-224,-224
+python3.12/site-packages/torch/serialization.py:840,,,-328,-328
+Documents/Uni/Semester4/Modelling_of_Synaptic_plasticity/code/synaptic_plasticity_project/main.py:28,,,-800,-800
+python3.12/site-packages/torch/serialization.py:828,,,-800,-800
+python3.12/site-packages/torch/_tensor.py:421,,,-880,-880
+python3.12/site-packages/torch/_dynamo/trace_rules.py:2794,,-10321,,-10321
