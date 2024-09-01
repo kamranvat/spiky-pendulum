@@ -12,8 +12,8 @@ To set up the conda environment, follow these steps:
 1. **Clone the repository**:
     Navigate to a directory where you want to clone the project into, then use
     ```sh
-    git clone https://github.com/kamranvat/SpikingPendulum.git
-    cd SpikingPendulum
+    git clone https://github.com/kamranvat/spiky-pendulum.git
+    cd spiky-pendulum
     ```
 
 2. **Create the conda environment**:
@@ -39,7 +39,7 @@ To edit paramters, open `config.py` and edit the `config_dict`.
 
 ## Tracking the Progress or view Results
 
-To launch tensorboard, navigate to the `SpikingPendulum` folder, activate conda environment and enter following command:
+To launch tensorboard, navigate to the `spiky-pendulum` folder, activate conda environment and enter following command:
 ```sh
 tensorboard --logdir=runs
 ```
@@ -64,4 +64,3 @@ The project will run and test each combination specified in main.py, which means
 ## Known issues:
 
 - Leaking Memory
-- 
