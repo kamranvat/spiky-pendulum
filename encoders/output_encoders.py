@@ -19,6 +19,7 @@ def decode_output_method1(spks: torch.Tensor, spike_time: int) -> np.ndarray:
 
 def decode_output_rate(spks: torch.Tensor, spike_time: int) -> np.ndarray:
     rates = spks.sum(dim=0) / spike_time
+    rates = rates * 4 - 2
     return rates.numpy()
 
 
