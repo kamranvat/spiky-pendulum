@@ -12,8 +12,8 @@ To set up the conda environment, follow these steps:
 1. **Clone the repository**:
     Navigate to a directory where you want to clone the project into, then use
     ```sh
-    git clone https://github.com/kamranvat/synaptic_plasticity_project.git
-    cd synaptic_plasticity_project
+    git clone https://github.com/kamranvat/SpikingPendulum.git
+    cd SpikingPendulum
     ```
 
 2. **Create the conda environment**:
@@ -34,9 +34,12 @@ To run the main script, use the following command:
 python main.py
 ```
 
+To edit paramters, open `config.py` and edit the `config_dict`.
+
+
 ## Tracking the Progress or view Results
 
-To launch tensorboard, navigate to the `synaptic_plasticity_project` folder, activate conda environment and enter following command:
+To launch tensorboard, navigate to the `SpikingPendulum` folder, activate conda environment and enter following command:
 ```sh
 tensorboard --logdir=runs
 ```
